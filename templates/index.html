@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>KTLO10 Shop – Mode, sacs & tech</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+    <div class="logo">KTLO10<span>.</span>Shop</div>
+
+    <nav>
+        <a href="#catalogue">Catalogue</a>
+        <a href="#avantages">Avantages</a>
+    </nav>
+
+    <a class="cartbtn"
+       href="{{ url_for('accueil', categorie=categorie, panier=1) }}">
+        🛒 Panier ({{ nombre }})
+    </a>
+
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div>
+        <h1>Style, son & technologie.</h1>
+
+        <p>
+            Vêtements, sneakers, sacs, casques, ordinateurs,
+            téléphones et accessoires : tout ce qu’il vous faut,
+            livré rapidement à Abidjan et partout en Côte d’Ivoire.
+        </p>
+
+        <a class="cta" href="#catalogue">
+            Découvrir la boutique
+        </a>
+    </div>
+
+    <div class="art">
+        <span>💻</span>
+        <span>🎧</span>
+        <span>📱</span>
+    </div>
+
+</section>
+
+
+<!-- CATEGORIES -->
+
+<div class="cats">
+
+    {% for cat in categories %}
+
+        <a href="{{ url_for('accueil', categorie=cat) }}"
+           class="chip {% if cat == categorie %}on{% endif %}">
+
+            {{ cat }}
+
+        </a>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- PRODUITS -->
+
+<h2 id="catalogue">Nos produits</h2>
+
+<div class="grid">
+
+    {% for p in produits %}
+
+        <article class="card">
+
+            <div class="img">
+
+                {% if p.tag %}
+                    <span class="tag">{{ p.tag }}</span>
+                {% endif %}
+
+                <span class="product-icon">
+                    {% if p.categorie == "Vêtements" %}
+                        👕
+                    {% elif p.categorie == "Sacs" %}
+                        🎒
+                    {% elif p.categorie == "Audio" %}
+                        🎧
+                    {% elif p.categorie == "Ordinateurs" %}
+                        💻
+                    {% elif p.categorie == "Téléphones" %}
+                        📱
+                    {% else %}
+                        ⌚
+                    {% endif %}
+                </span>
+
+            </div>
+
+            <div class="info">
+
+                <small>{{ p.categorie }}</small>
+
+                <b>{{ p.nom }}</b>
+
+                <div class="row">
+
+                    <span class="price">
+                        {{ "{:,.0f}".format(p.prix).replace(",", " ") }} FCFA
+                    </span>
+
+                    <form action="{{ url_for('ajouter', id=p.id) }}"
+                          method="POST">
+
+                        <input type="hidden"
+                               name="categorie"
+                               value="{{ categorie }}">
+
+                        <button class="add" type="submit">
+                            Ajouter
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- AVANTAGES -->
+
+<h2 id="avantages">Pourquoi nous choisir ?</h2>
+
+<div class="perks">
+
+    <div>
+        🚚 Livraison rapide
+        <span>Sous 48 h à Abidjan</span>
+    </div>
+
+    <div>
+        🔒 Paiement sécurisé
+        <span>Mobile Money ou à la livraison</span>
+    </div>
+
+    <div>
+        ↩️ Retour 7 jours
+        <span>Satisfait ou remboursé</span>
+    </div>
+
+    <div>
+        💬 Support WhatsApp
+        <span>Réponse en quelques minutes</span>
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+    © 2026 KTLO10 Shop – Tous droits réservés
+</footer>
+
+
+<!-- PANIER -->
+
+{% if panier_ouvert %}
+
+    <aside id="drawer" class="open">
+
+        <a class="x" href="{{ url_for('fermer') }}">×</a>
+
+        <h3>Votre panier</h3>
+
+        <div id="items">
+
+            {% for item in articles %}
+
+                <div class="it">
+
+                    <div>
+                        <b>{{ item.produit.nom }}</b>
+                        <br>
+                        <small>
+                            {{ item.sous_total }} FCFA
+                        </small>
+                    </div>
+
+                    <div class="qty">
+
+                        <form action="{{ url_for('modifier', id=item.produit.id, action='moins') }}"
+                              method="POST">
+                            <button type="submit">−</button>
+                        </form>
+
+                        {{ item.quantite }}
+
+                        <form action="{{ url_for('modifier', id=item.produit.id, action='plus') }}"
+                              method="POST">
+                            <button type="submit">+</button>
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <p>Votre panier est vide.</p>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="total">
+
+            <span>Total</span>
+
+            <span>
+                {{ "{:,.0f}".format(total).replace(",", " ") }} FCFA
+            </span>
+
+        </div>
+
+        <form action="{{ url_for('commander') }}" method="POST">
+
+            <button class="pay" type="submit">
+                Commander
+            </button>
+
+        </form>
+
+    </aside>
+
+{% endif %}
+
+
+{% if commande %}
+    <p class="success">
+        Merci ! Commande enregistrée.
+    </p>
+{% endif %}
+
+</body>
+</html>
